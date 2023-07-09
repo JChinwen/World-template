@@ -1,0 +1,70 @@
+#include "GameFramework/Actor.h"
+#include "Components/StaticMeshComponent.h"
+
+// Custom actor class
+class AMyActor : public AActor
+{
+    GENERATED_BODY()
+
+public:
+    // Static mesh component
+    UPROPERTY(VisibleAnywhere)
+    UStaticMeshComponent* MeshComponent;
+
+    // Speed of rotation
+    UPROPERTY(EditAnywhere, Category = "Rotation")
+    float RotationSpeed;
+
+    // Constructor
+    AMyActor()
+    {
+        // Set this actor to be tickable
+        PrimaryActorTick.bCanEverTick = true;
+
+        // Create and attach the static mesh component
+        MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+        RootComponent = MeshComponent;
+
+        // Set default rotation speed
+        RotationSpeed = 100.0f;
+    }
+
+    // Called when the game starts or when spawned
+    void BeginPlay() override
+    {
+        Super::BeginPlay();
+    }
+
+    // Tick function
+    void Tick(float DeltaTime) override
+    {
+        Super::Tick(DeltaTime);
+
+        // Rotate the actor
+        FRotator NewRotation = GetActorRotation() + FRotator(0.0f, RotationSpeed * DeltaTime, 0.0f);
+        SetActorRotation(NewRotation);
+    }
+};
+
+// Game mode class
+class AMyGameMode : public AGameModeBase
+{
+    GENERATED_BODY()
+
+public:
+    // Constructor
+    AMyGameMode()
+    {
+        // Set the default pawn class to our custom actor
+        DefaultPawnClass = AMyActor::StaticClass();
+    }
+};
+
+// Entry point for the program
+void UMyGameInstance::Init()
+{
+    Super::Init();
+
+    // Set the game mode to our custom game mode
+    UGameplayStatics::OpenLevel(GetWorld(), TEXT("MyLevel"), true, TEXT("GameMode=MyGameMode"));
+}
